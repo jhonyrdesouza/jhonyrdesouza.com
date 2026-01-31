@@ -17,9 +17,10 @@ permissions:
   id-token: write
 
 jobs:
-  lint:
-    name: Lint code
+  code-quality:
+    name: Code quality checks
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,12 +28,13 @@ jobs:
       - name: Setup Node.js and install dependencies
         uses: ./.github/actions/setup-node-pnpm
 
-      - name: Run linter
-        run: pnpm lint
+      - name: Run Biome CI
+        run: pnpm biome ci
 
   transpile:
     name: Transpile code
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,7 +48,8 @@ jobs:
   deploy:
     name: Deploy to Vercel
     runs-on: ubuntu-latest
-    needs: [lint, transpile]
+    timeout-minutes: 5
+    needs: [code-quality, transpile]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/development')
     environment:
       name: ${{ github.ref == 'refs/heads/master' && 'production' || 'development' }}
@@ -55,6 +58,8 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_ENV: ${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+      VERCEL_TARGET: ${{ github.ref == 'refs/heads/master' && '--prod' || '--target=preview' }}
 
     steps:
       - name: Checkout repository
@@ -69,24 +74,21 @@ jobs:
       - name: Pull Vercel environment
         run: |
           vercel pull --yes \
-            --environment=${{ github.ref == 'refs/heads/master' && 'production' || 'preview' }} \
+            --environment=${{ env.VERCEL_ENV }} \
             --token=${{ env.VERCEL_TOKEN }} \
             --scope=${{ env.VERCEL_ORG_ID }}
 
       - name: Build with Vercel
         run: |
           vercel build \
-            ${{ github.ref == 'refs/heads/master' && '--prod' || '' }} \
+            ${{ env.VERCEL_TARGET }} \
             --token=${{ env.VERCEL_TOKEN }} \
             --scope=${{ env.VERCEL_ORG_ID }}
 
       - name: Deploy to Vercel
         id: deploy
         run: |
-          url="$(vercel deploy --prebuilt \
-            ${{ github.ref == 'refs/heads/master' && '--prod' || '' }} \
+          vercel deploy --prebuilt \
+            ${{ env.VERCEL_TARGET }} \
             --token=${{ env.VERCEL_TOKEN }} \
-            --scope=${{ env.VERCEL_ORG_ID }})"
-
-          echo "url=$url" >> $GITHUB_OUTPUT
-          echo "Deployed to: $url" >> $GITHUB_STEP_SUMMARY
+            --scope=${{ env.VERCEL_ORG_ID }}
