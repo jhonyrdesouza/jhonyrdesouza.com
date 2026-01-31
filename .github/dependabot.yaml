@@ -11,9 +11,6 @@ updates:
       - "automated"
       - "dependencies"
       - "packages"
-    commit-message:
-      prefix: "chore"
-      include: "scope"
     groups:
       production-dependencies:
         dependency-type: "production"
@@ -37,6 +34,3 @@ updates:
       - "automated"
       - "dependencies"
       - "github-actions"
-    commit-message:
-      prefix: "ci"
-      include: "scope"
