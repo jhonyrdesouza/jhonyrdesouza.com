@@ -1,0 +1,36 @@
+# Dependency directories:
+node_modules/
+
+# Logs and debug files:
+*.log
+
+# Environment variables and sensitive keys:
+.env
+.env*.local
+*.pem
+
+# Test coverage:
+coverage/
+.nyc_output/
+
+# Build tools:
+.turbo/
+.vercel/
+.next/
+
+# Build outputs:
+out/
+build/
+dist/
+
+# Temporary and cache files:
+*.tmp
+*.temp
+.cache/
+
+# IDE configurations:
+.vscode/*
+
+# Typescript:
+*.tsbuildinfo
+next-env.d.ts
