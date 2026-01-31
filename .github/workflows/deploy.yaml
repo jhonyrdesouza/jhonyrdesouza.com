@@ -38,14 +38,14 @@ jobs:
         run: pnpm add -g vercel@latest
 
       - name: Pull Vercel environment information
-        run: vercel pull --yes --environment=${{ env.NODE_ENV }} --token=${{ env.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=${{ env.NODE_ENV }} --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_ORG_ID }}
 
       - name: Build project
-        run: vercel build ${{ github.ref == 'refs/heads/master' && '--prod' || '' }} --token=${{ env.VERCEL_TOKEN }}
+        run: vercel build ${{ github.ref == 'refs/heads/master' && '--prod' || '' }} --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_ORG_ID }}
 
       - name: Deploy to Vercel
         id: deploy
         run: |
-          url="$(vercel deploy --prebuilt ${{ github.ref == 'refs/heads/master' && '--prod' || '' }} --token=${{ env.VERCEL_TOKEN }})"
+          url="$(vercel deploy --prebuilt ${{ github.ref == 'refs/heads/master' && '--prod' || '' }} --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_ORG_ID }})"
           echo "url=$url" >> $GITHUB_OUTPUT
           echo "Deployed to: $url"
