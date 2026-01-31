@@ -18,5 +18,4 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
-        pnpm config set enable-pre-post-scripts true
         pnpm install --frozen-lockfile
