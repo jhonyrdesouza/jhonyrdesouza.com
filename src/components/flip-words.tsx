@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/suspicious/noArrayIndexKey: <explanation> */
+
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
